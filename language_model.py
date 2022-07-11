@@ -13,11 +13,12 @@ class WordEmbedding(nn.Module):
     The ntoken-th dim is used for padding_idx, which agrees *implicitly*
     with the definition in Dictionary.
     """
-    def __init__(self, ntoken, emb_dim, dropout, op=''):
+    def __init__(self, ntoken, emb_dim, dropout, cat=True):
         super(WordEmbedding, self).__init__()
-        self.op = op
+        self.cat = cat
         self.emb = nn.Embedding(ntoken+1, emb_dim, padding_idx=ntoken)
-        if 'c' in op:
+        # if 'c' in op:
+        if self.cat:
             self.emb_ = nn.Embedding(ntoken+1, emb_dim, padding_idx=ntoken)
             self.emb_.weight.requires_grad = False # fixed
         self.dropout = nn.Dropout(dropout)
@@ -33,12 +34,14 @@ class WordEmbedding(nn.Module):
                 weight_init = torch.cat([weight_init, torch.from_numpy(tfidf_weights)], 0)
             weight_init = tfidf.matmul(weight_init) # (N x N') x (N', F)
             self.emb_.weight.requires_grad = True
-        if 'c' in self.op:
+        # if 'c' in self.op:
+        if self.cat:
             self.emb_.weight.data[:self.ntoken] = weight_init.clone()
 
     def forward(self, x):
         emb = self.emb(x)
-        if 'c' in self.op:
+        # if 'c' in self.op:
+        if self.cat:
             emb = torch.cat((emb, self.emb_(x)), 2)
         emb = self.dropout(emb)
         return emb

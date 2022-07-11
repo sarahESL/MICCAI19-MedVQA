@@ -182,7 +182,7 @@ class Trainer(object):
                 continue
             if p.grad is None:
                 raise RuntimeError('Model parameter did not receive gradient: ' + name + '. '
-                                                                                         'Use the param in the forward pass or set requires_grad=False')
+                        'Use the param in the forward pass or set requires_grad=False')
             grads.append(p.grad.data)
         return grads
 
@@ -194,7 +194,7 @@ class Trainer(object):
         offset = 0
         for g in grads:
             numel = g.numel()
-            out[offset:offset+numel].copy_(g.view(-1))
+            out[offset:offset+numel].copy_(g.contiguous().view(-1))
             offset += numel
         return out[:offset]
 

@@ -10,6 +10,9 @@ import base_model
 from train import train
 import utils
 
+
+torch.autograd.set_detect_anomaly(True)
+
 try:
     import _pickle as pickle
 except:
